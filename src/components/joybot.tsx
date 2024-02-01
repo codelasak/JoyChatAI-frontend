@@ -14,7 +14,7 @@ const Joybot = () => {
   const [mode, setMode] = useState("normal"); // Added mode state
 
   function createBlobURL(data: any) {
-    const blob = new Blob([data], { type: "audio/mpeg" });
+    const blob = new Blob([data], { type: "audio/wav" });
     const url = window.URL.createObjectURL(blob);
     return url;
   }
@@ -37,9 +37,9 @@ const Joybot = () => {
 
         // send form data to api endpoint
         await axios // http://127.0.0.1:8000/post-audio //https://joyai-backend.onrender.com/post-audio
-          .post("https://joyai-backend.onrender.com/post-audio", formData, { 
+          .post("http://127.0.0.1:8000/post-audio", formData, { 
             headers: {
-              "Content-Type": "audio/mpeg",
+              "Content-Type": "audio/wav",
             },
             responseType: "arraybuffer", // Set the response type to handle binary data
           })
