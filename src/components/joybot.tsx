@@ -37,7 +37,7 @@ const Joybot = () => {
 
         // send form data to api endpoint
         await axios // http://127.0.0.1:8000/post-audio //https://joyai-backend.onrender.com/post-audio
-          .post("http://127.0.0.1:8000/post-audio", formData, { 
+          .post("https://joyai-backend.onrender.com/post-audio", formData, { 
             headers: {
               "Content-Type": "audio/wav",
             },
