@@ -12,8 +12,9 @@
     "@vercel/speed-insights": "^1.0.5",
     "axios": "^1.3.4",
     "react": "^18.2.0",
+    "react-audio-voice-recorder": "^2.2.0",
     "react-dom": "^18.2.0",
-    "react-media-recorder": "^1.6.6"
+    "react-media-recorder": "^1.6.5"
   },
   "devDependencies": {
     "@types/react": "^18.0.27",
