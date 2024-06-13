@@ -13,7 +13,7 @@ function Title({ setMessages }: Props) {
     setIsResetting(true);
 
     await axios
-      .get("https://joyai-backend.onrender.com/reset", { // http://127.0.0.1:8000/reset //https://joyai-backend.onrender.com/reset
+      .get("http://127.0.0.1:8000/reset", { // http://127.0.0.1:8000/reset //https://joyai-backend.onrender.com/reset
         headers: {
           "Content-Type": "application/json",
         },
