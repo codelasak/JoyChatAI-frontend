@@ -1,5 +1,3 @@
-// Joybot.tsx
-
 import React, { useState } from "react";
 import Title from "./Title";
 import axios from "axios";
@@ -14,85 +12,76 @@ const Joybot = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [mode, setMode] = useState("normal");
 
-  const createBlobURL = (data: any) => {
-    const blob = new Blob([data], { type: "audio/mpeg" });
-    return window.URL.createObjectURL(blob);
-  };
-
   const handleStop = async (blobUrl: string) => {
     setIsLoading(true);
     setMode("listening");
-    console.log("Send Blob to server");
-  
+    console.log("Send Blob to server", blobUrl);
+
     const myMessage = { sender: "sen", blobUrl };
     const messagesArr = [...messages, myMessage];
-  
-    const audio = new Audio();
-    audio.src = blobUrl;
-  
-    // Listen for the loadedmetadata event to get audio duration
-    audio.addEventListener("loadedmetadata", () => {
-      const audioDuration = audio.duration;
-  
-      if (audioDuration < 0.1) {
-        // If duration is less than 0.1 seconds, handle appropriately (e.g., show an error message)
-        console.error("Audio duration is too short. Minimum audio length is 0.1 seconds.");
+
+    try {
+      const response = await fetch(blobUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch blob: ${response.statusText}`);
+      }
+      const blob = await response.blob();
+
+      if (blob.size === 0) {
+        throw new Error("Blob is empty");
+      }
+
+      console.log("Blob size:", blob.size, "bytes");
+      console.log("Blob type:", blob.type);
+
+      const formData = new FormData();
+      formData.append("file", blob, "myFile.wav");
+
+      console.log("Sending FormData to server...");
+      const serverResponse = await axios.post("http://127.0.0.1:8000/post-audio", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        responseType: 'arraybuffer',
+      });
+
+      console.log("Server response:", serverResponse.data);
+
+      if (serverResponse.status === 303) {
+        window.location.href = "https://www.youtube.com";
+        console.log("Redirect to YouTube");
+      } else if (serverResponse.status === 200) {
+        const serverBlob = new Blob([serverResponse.data], { type: "audio/mpeg" });
+        const serverBlobUrl = window.URL.createObjectURL(serverBlob);
+
+        const rachelMessage = { sender: "JoyBot", blobUrl: serverBlobUrl };
+        messagesArr.push(rachelMessage);
+        setMessages(messagesArr);
+
+        setIsLoading(false);
+        setMode("playing");
+
+        const audioResponse = new Audio();
+        audioResponse.src = serverBlobUrl;
+        audioResponse.play();
+
+        audioResponse.addEventListener("ended", () => {
+          setMode("normal");
+        });
+      } else {
+        console.error("Unexpected response status:", serverResponse.status);
         setIsLoading(false);
         setMode("normal");
-        return;
       }
-  
-      // Continue with sending the blob to the server
-      fetch(blobUrl)
-        .then((res) => res.blob())
-        .then(async (blob) => {
-          const formData = new FormData();
-          formData.append("file", blob, "myFile.wav");
-  
-          try {  
-
-
-            const response = await axios.post("http://127.0.0.1:8000/post-audio", formData, {
-              headers: {
-                "Content-Type": "audio/mpeg",
-              },
-              responseType: "arraybuffer",
-            });
-
-             // Check if the status code is 303 (See Other)
-          if (response.status === 303) {
-            // Manually handle the redirect
-            // Manually handle the redirect to YouTube
-            window.location.href = "https://www.youtube.com";
-            console.log(" redirect to YouTube");
-          } else {
-            const serverBlob = new Blob([response.data], { type: "audio/mpeg" });
-            const serverBlobUrl = window.URL.createObjectURL(serverBlob);
-  
-            const rachelMessage = { sender: "JoyBot", blobUrl: serverBlobUrl };
-            messagesArr.push(rachelMessage);
-            setMessages(messagesArr);
-  
-            setIsLoading(false);
-            setMode("playing");
-  
-            const audioResponse = new Audio();
-            audioResponse.src = serverBlobUrl;
-            audioResponse.play();
-  
-            audioResponse.addEventListener("ended", () => {
-              setMode("normal");
-            });  
-          }
-          } catch (error) {
-            console.error("Error posting audio:", error);
-            setIsLoading(false);
-          }
-        });
-    });
-  
-    // Load the audio to trigger the loadedmetadata event
-    audio.load();
+    } catch (error) {
+      console.error("Error posting audio:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Server responded with:", error.response.status, error.response.data);
+        console.error("Full error object:", JSON.stringify(error, null, 2));
+      }
+      setIsLoading(false);
+      setMode("normal");
+    }
   };
 
   return (
@@ -110,24 +99,16 @@ const Joybot = () => {
       <div className="fixed bottom-0 right-0 p-6">
         <ReactMediaRecorder
           audio
-          onStop={(blobUrl: string) => {
-            handleStop(blobUrl);
-          }}
+          onStop={handleStop}
           render={({ status, startRecording, stopRecording }) => (
             <div className="mt-2">
               <button
                 onMouseDown={startRecording}
-                onMouseUp={() => {
-                  stopRecording();
-                }}
+                onMouseUp={stopRecording}
                 className="bg-white p-4 rounded-full"
               >
                 <RecordIcon
-                  classText={
-                    status === "recording"
-                      ? "animate-pulse text-red-500"
-                      : "text-sky-500"
-                  }
+                  classText={status === "recording" ? "animate-pulse text-red-500" : "text-sky-500"}
                 />
               </button>
               <p className="mt-2 text-white font-light">{status}</p>
@@ -139,4 +120,4 @@ const Joybot = () => {
   );
 };
 
-export default Joybot
+export default Joybot;

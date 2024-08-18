@@ -1,24 +1,20 @@
-import { useState } from "react";
-import Controller from "./components/Controller";
-import Joybot from "./components/joybot";
-import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './components/home';
+import Joybot from './components/joybot';
+import Park from './components/park';
+import Tebrikler from './components/tebrikler';
 
 function App() {
-  const [count, setCount] = useState(0);
-  const handle = useFullScreenHandle();
-
   return (
-    <div style={{ backgroundColor: "white" }}>
-      <button onClick={handle.enter}>
-        Enter fullscreen
-      </button>
-
-      <FullScreen handle={handle}>
-        <div>
-          <Joybot />
-        </div>
-      </FullScreen>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/chat" element={<Joybot />} />
+        <Route path="/park" element={<Park />} />
+        <Route path="/tebrikler" element={<Tebrikler />} />
+      </Routes>
+    </Router>
   );
 }
 
