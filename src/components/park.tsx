@@ -12,10 +12,10 @@ const Park: React.FC = () => {
   const [animationState, setAnimationState] = useState<'listen' | 'talk' | 'none'>('none');
 
   const steps = [
-    { talkAudio: './dist/voices/Parkta_kaydırak_var_.mp3', image: './dist/replik/Park1.jpg', replyAudio: './dist/voices/replik_Kaydıraktan__kayarım_.mp3' },
-    { talkAudio: './dist/voices/Kaydırak_çok_güzel_.mp3', image: './dist/replik/Park2.jpg', replyAudio: './dist/voices/replik_Parkta__top__oynarım_.mp3' },
-    { talkAudio: './dist/voices/Top_oynamak_eğlencelidir_.mp3', image: './dist/replik/Park3.jpg', replyAudio: './dist/voices/replik_Arkadaşlarım__da__parka_gider_.mp3' },
-    { talkAudio: './dist/voices/Herkes_parkta_eğleniyor_.mp3', image: './dist/replik/Park4.jpg', replyAudio: './dist/voices/replik_Arkadaşlarımla__oynarken__mutluyum_.mp3', finalAudio: './dist/voices/Arkadaşlarımızı_çok_severiz_.mp3' },
+    { talkAudio: './voices/Parkta_kaydırak_var_.mp3', image: './replik/Park1.jpg', replyAudio: './voices/replik_Kaydıraktan__kayarım_.mp3' },
+    { talkAudio: './voices/Kaydırak_çok_güzel_.mp3', image: './replik/Park2.jpg', replyAudio: './voices/replik_Parkta__top__oynarım_.mp3' },
+    { talkAudio: './voices/Top_oynamak_eğlencelidir_.mp3', image: './replik/Park3.jpg', replyAudio: './voices/replik_Arkadaşlarım__da__parka_gider_.mp3' },
+    { talkAudio: './voices/Herkes_parkta_eğleniyor_.mp3', image: './replik/Park4.jpg', replyAudio: './voices/replik_Arkadaşlarımla__oynarken__mutluyum_.mp3', finalAudio: './voices/Arkadaşlarımızı_çok_severiz_.mp3' },
   ];
 
   useEffect(() => {
