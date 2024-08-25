@@ -182,7 +182,7 @@ const Joybot = () => {
           onClick={toggleVAD}
           className={`bg-white p-4 rounded-full ${isVADEnabled ? "bg-green-500" : "bg-red-500"}`}
         >
-          {isVADEnabled ? "Başlat" : "Kapat"}
+          {isVADEnabled ? "Kapat" : "Başlat"}
         </button>
       </div>
 
