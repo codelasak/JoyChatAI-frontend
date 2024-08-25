@@ -118,7 +118,7 @@ const Joybot = () => {
     formData.append('file', audioBlob, 'recorded_audio.wav');
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/post-audio/', {
+      const response = await fetch('http://api.fennaver.com/post-audio/', {
         method: 'POST',
         body: formData,
       });
