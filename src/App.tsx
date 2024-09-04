@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './components/home';
-import Joybot from './components/joybot';
+import Joybot from './components/voiceChat';
 import Park from './components/park';
 import Tebrikler from './components/tebrikler';
 
