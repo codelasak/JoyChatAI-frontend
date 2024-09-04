@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
@@ -10,15 +9,15 @@ export default defineConfig({
       targets: [
         {
           src: 'node_modules/@ricky0123/vad-web/dist/vad.worklet.bundle.min.js',
-          dest: './'
+          dest: 'public'
         },
         {
           src: 'node_modules/@ricky0123/vad-web/dist/silero_vad.onnx',
-          dest: './'
+          dest: 'public'
         },
         {
           src: 'node_modules/onnxruntime-web/dist/*.wasm',
-          dest: './'
+          dest: 'public'
         }
       ]
     })
@@ -29,6 +28,19 @@ export default defineConfig({
   build: {
     commonjsOptions: {
       include: [/onnxruntime-web/, /node_modules/]
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vad-wasm': ['@ricky0123/vad-web'],
+        },
+      },
+    },
+  },
+  server: {
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp'
     }
   }
 })
