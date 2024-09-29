@@ -115,8 +115,8 @@ export const useVoiceChat = () => {
         onSpeechStart: () => setMode("listening"),
         onSpeechEnd: handleVADStop,
         onVADMisfire: () => setMode("normal"),
-        modelURL: '/silero_vad.onnx',
-        workletURL: '/vad.worklet.bundle.min.js',
+        modelURL: './silero_vad.onnx',
+        workletURL: './vad.worklet.bundle.min.js',
       });
       setVad(myvad);
       myvad.start();
