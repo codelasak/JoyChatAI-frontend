@@ -16,3 +16,12 @@ frontend:
     paths:
       - node_modules/**/*
       - .yarn/cache/**/*
+  customHeaders:
+    - pattern: '**/*.js'
+      headers:
+        - key: 'Content-Type'
+          value: 'application/javascript'
+    - pattern: '**/*.mjs'
+      headers:
+        - key: 'Content-Type'
+          value: 'application/javascript'

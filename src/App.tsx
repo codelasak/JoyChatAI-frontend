@@ -5,8 +5,8 @@ import Joybot from './components/voiceChat';
 import Park from './components/park';
 import Tebrikler from './components/tebrikler';
 import Profile from './components/profile';
-import AnalysisResults from './components/AnalysisResults';
 import EmotionGazeDetector from './components/EmotionGazeDetector';
+import AnalysisResults from './components/AnalysisResults';
 
 
 
