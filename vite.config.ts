@@ -9,15 +9,15 @@ export default defineConfig({
       targets: [
         {
           src: 'node_modules/@ricky0123/vad-web/dist/vad.worklet.bundle.min.js',
-          dest: ''
+          dest: 'assets'
         },
         {
           src: 'node_modules/@ricky0123/vad-web/dist/silero_vad.onnx',
-          dest: ''
+          dest: 'assets'
         },
         {
           src: 'node_modules/onnxruntime-web/dist/*.wasm',
-          dest: ''
+          dest: 'assets'
         },
         {
           src: 'node_modules/onnxruntime-web/dist/*.mjs',
