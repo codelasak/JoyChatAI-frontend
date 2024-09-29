@@ -3,25 +3,29 @@ frontend:
   phases:
     preBuild:
       commands:
-        - yarn install --frozen-lockfile
+        - npm ci
     build:
       commands:
-        - yarn dev &
-        - sleep 15
+        - npm run build
   artifacts:
-    baseDirectory: /
+    baseDirectory: dist
     files:
       - '**/*'
   cache:
     paths:
       - node_modules/**/*
-      - .yarn/cache/**/*
   customHeaders:
     - pattern: '**/*.js'
       headers:
         - key: 'Content-Type'
-          value: 'application/javascript'
+          value: 'application/javascript; charset=utf-8'
     - pattern: '**/*.mjs'
       headers:
         - key: 'Content-Type'
-          value: 'application/javascript'
+          value: 'application/javascript; charset=utf-8'
+    - pattern: '**/*'
+      headers:
+        - key: 'Cross-Origin-Opener-Policy'
+          value: 'same-origin'
+        - key: 'Cross-Origin-Embedder-Policy'
+          value: 'require-corp'
