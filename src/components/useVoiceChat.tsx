@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { MicVAD } from "@ricky0123/vad-web";
 import { useAudioQueue } from "./useAudioQueue";
-import { sendAudioToServer, createWavBlob } from "./audioUtils";
+import { createWavBlob, blobToBase64 } from "./audioUtils";
 
 export const useVoiceChat = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,8 +12,78 @@ export const useVoiceChat = () => {
   const [isVADEnabled, setIsVADEnabled] = useState(false);
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
+  
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectAttempts = useRef(0);
+  const maxReconnectAttempts = 5;
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { audioQueue, isPlaying, playNextInQueue, isResponsePlaying } = useAudioQueue();
+
+  const connectWebSocket = useCallback(() => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      console.log('WebSocket is already connected');
+      return;
+    }
+
+    console.log('Attempting to connect WebSocket...');
+    wsRef.current = new WebSocket('ws://127.0.0.1:8000/api/ws');
+    
+    wsRef.current.onopen = () => {
+      console.log('WebSocket connected successfully');
+      setIsWebSocketConnected(true);
+      reconnectAttempts.current = 0;
+    };
+
+    wsRef.current.onclose = (event) => {
+      console.log('WebSocket disconnected:', event.code, event.reason);
+      setIsWebSocketConnected(false);
+      if (reconnectAttempts.current < maxReconnectAttempts) {
+        reconnectTimeoutRef.current = setTimeout(() => {
+          reconnectAttempts.current += 1;
+          console.log(`Attempting to reconnect (attempt ${reconnectAttempts.current})...`);
+          connectWebSocket();
+        }, 3000);
+      } else {
+        console.log('Max reconnect attempts reached. Please refresh the page.');
+      }
+    };
+    
+    wsRef.current.onmessage = (event) => {
+      console.log('Received WebSocket message:', event.data);
+      if (event.data instanceof Blob) {
+        const audioUrl = URL.createObjectURL(event.data);
+        audioQueue.current.push(audioUrl);
+        if (!isPlaying.current) {
+          playNextInQueue();
+        }
+      } else {
+        console.log('Received message:', event.data);
+      }
+    };
+
+    wsRef.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      // Attempt to reconnect
+      setTimeout(() => {
+        console.log('Attempting to reconnect due to error...');
+        connectWebSocket();
+      }, 5000);
+    };
+  }, []);
+
+  useEffect(() => {
+    connectWebSocket();
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+    };
+  }, [connectWebSocket]);
 
   useEffect(() => {
     console.log('Animation state changed:', mode);
@@ -45,8 +115,8 @@ export const useVoiceChat = () => {
         onSpeechStart: () => setMode("listening"),
         onSpeechEnd: handleVADStop,
         onVADMisfire: () => setMode("normal"),
-        modelURL: "./silero_vad.onnx", 
-        workletURL: "./vad.worklet.bundle.min.js",
+        modelURL: '/silero_vad.onnx',
+        workletURL: '/vad.worklet.bundle.min.js',
       });
       setVad(myvad);
       myvad.start();
@@ -85,19 +155,21 @@ export const useVoiceChat = () => {
     }
 
     try {
-      const audioUrl = await sendAudioToServer(wavBlob);
-      audioQueue.current.push(audioUrl);
-      if (!isPlaying.current) {
-        playNextInQueue();
+      const base64Audio = await blobToBase64(wavBlob);
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.send(base64Audio);
+      } else {
+        console.error('WebSocket is not open');
+        connectWebSocket(); // Attempt to reconnect
       }
     } catch (error) {
       console.error('Error in handleVADStop:', error);
     } finally {
       setIsLoading(false);
       setIsWaitingForResponse(false);
-      setMode("normal");  // Reset mode after processing
+      setMode("normal");
     }
-  }, [isWaitingForResponse, isResponsePlaying, audioQueue, isPlaying, playNextInQueue]);
+  }, [isWaitingForResponse, isResponsePlaying, connectWebSocket]);
 
   const toggleControlsVisibility = () => setIsControlsVisible(!isControlsVisible);
   
@@ -119,10 +191,16 @@ export const useVoiceChat = () => {
     isControlsVisible,
     mode,
     isVADEnabled,
+    isLoading,
+    isWaitingForResponse,
+    isFullScreen,
+    messages,
+    isWebSocketConnected,
     toggleControlsVisibility,
     toggleFullScreen,
     toggleVAD,
     setMessages,
-    isResponsePlaying
+    isResponsePlaying,
+    connectWebSocket // Add this to the returned object
   };
 };

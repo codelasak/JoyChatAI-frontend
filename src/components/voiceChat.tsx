@@ -1,50 +1,60 @@
 import React from "react";
 import { Link } from 'react-router-dom';
-import { Maximize2, Home, ChevronUp, ChevronDown } from 'lucide-react';
+import { Maximize2, Home, ChevronUp, ChevronDown, Camera, Mic, MicOff, RotateCcw } from 'lucide-react';
 import Title from "./Title";
 import BlinkAnimation from "./blink";
 import TalkAnimation from "./talk";
 import ListenAnimation from "./listen";
-import { useVoiceChat } from "./useVoiceChat";
+import { useVoiceChat } from "../hooks/useVoiceChat";
 
 const VoiceChat: React.FC = () => {
   const {
     isControlsVisible,
     mode,
     isVADEnabled,
-    isResponsePlaying,
+    isWebSocketConnected,
     toggleControlsVisibility,
     toggleFullScreen,
-    toggleVAD,
-    setMessages
+    toggleVAD
   } = useVoiceChat();
 
   return (
     <div className="w-1000 h-600 flex flex-col justify-between bg-white">
       <div className="fixed center-0 p-6">
-        {mode === "normal" && !isResponsePlaying && <BlinkAnimation />}
+        {mode === "normal" && <BlinkAnimation />}
         {mode === "listening" && <ListenAnimation />}
-        {(mode === "playing" || isResponsePlaying) && <TalkAnimation />}
+        {mode === "talking" && <TalkAnimation />}
       </div>
 
       {isControlsVisible && (
         <>
           <div className="fixed bottom-0 left-0 p-6 flex items-center space-x-4">
-            <Title setMessages={setMessages} />
-            <button onClick={toggleFullScreen} className="bg-white p-2 rounded-full">
+            <Title setMessages={() => {}} />
+            <button onClick={toggleFullScreen} className="bg-white p-2 rounded-full hover:bg-gray-200 transition-colors">
               <Maximize2 size={24} />
             </button>
-            <Link to="/" className="bg-white p-2 rounded-full">
+            <Link to="/" className="bg-white p-2 rounded-full hover:bg-gray-200 transition-colors">
               <Home size={24} />
             </Link>
+            <Link to="/detect" className="bg-white p-2 rounded-full hover:bg-gray-200 transition-colors">
+              <Camera size={24} />
+            </Link>
+            <button className="bg-white p-2 rounded-full hover:bg-gray-200 transition-colors">
+              <RotateCcw size={24} />
+            </button>
+            {/* Remove the connectWebSocket button */}
           </div>
 
           <div className="fixed bottom-0 right-0 p-6">
             <button
               onClick={toggleVAD}
-              className={`bg-white p-4 rounded-full ${isVADEnabled ? "bg-green-500" : "bg-red-500"}`}
+              className={`p-2 rounded-full transition-colors ${
+                isVADEnabled 
+                  ? "bg-green-500 hover:bg-green-600" 
+                  : "bg-red-500 hover:bg-red-600"
+              }`}
             >
-              {isVADEnabled ? "Kapat" : "Başlat"}
+              {isVADEnabled ? <MicOff size={24} color="white" /> : <Mic size={24} color="white" />}
             </button>
           </div>
         </>
@@ -53,7 +63,7 @@ const VoiceChat: React.FC = () => {
       <div className="fixed bottom-0 left-0 transform translate-x-4 p-2">
         <button
           onClick={toggleControlsVisibility}
-          className="bg-white p-2 rounded-full shadow-md"
+          className="bg-white p-2 rounded-full shadow-md hover:bg-gray-200 transition-colors"
         >
           {isControlsVisible ? <ChevronDown size={24} /> : <ChevronUp size={24} />}
         </button>
