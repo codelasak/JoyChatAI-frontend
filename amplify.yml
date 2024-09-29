@@ -7,6 +7,7 @@ frontend:
     build:
       commands:
         - yarn build
+        - echo "VITE_APP_API_URL=$API_URL" >> .env
   artifacts:
     baseDirectory: dist
     files:
@@ -16,21 +17,19 @@ frontend:
       - node_modules/**/*
       - .yarn/cache/**/*
   customHeaders:
-    - pattern: '**/*.js'
-      headers:
-        - key: 'Content-Type'
-          value: 'application/javascript; charset=utf-8'
-    - pattern: '**/*.mjs'
-      headers:
-        - key: 'Content-Type'
-          value: 'application/javascript; charset=utf-8'
-    - pattern: '**/*.wasm'
-      headers:
-        - key: 'Content-Type'
-          value: 'application/wasm'
     - pattern: '**/*'
       headers:
         - key: 'Cross-Origin-Opener-Policy'
           value: 'same-origin'
         - key: 'Cross-Origin-Embedder-Policy'
           value: 'require-corp'
+        - key: 'Access-Control-Allow-Origin'
+          value: '*'
+    - pattern: '*.wasm'
+      headers:
+        - key: 'Content-Type'
+          value: 'application/wasm'
+    - pattern: '*.mjs'
+      headers:
+        - key: 'Content-Type'
+          value: 'application/javascript'
